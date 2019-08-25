@@ -1,5 +1,6 @@
 // console.log('Fired');
-const text = `Таким образом реализация намеченных плановых заданий влечет за собой процесс внедрения и модернизации дальнейших направлений развития. Идейные соображения высшего порядка, а также сложившаяся структура организации обеспечивает широкому кругу (специалистов) участие в формировании направлений прогрессивного развития. Не следует, однако забывать, что постоянный количественный рост и сфера нашей активности требуют от нас анализа дальнейших направлений развития. С другой стороны укрепление и развитие структуры обеспечивает широкому кругу (специалистов) участие в формировании дальнейших направлений развития.
+const text = `Таким образом реализация
+ намеченных плановых заданий влечет за собой процесс внедрения и модернизации дальнейших направлений развития. Идейные соображения высшего порядка, а также сложившаяся структура организации обеспечивает широкому кругу (специалистов) участие в формировании направлений прогрессивного развития. Не следует, однако забывать, что постоянный количественный рост и сфера нашей активности требуют от нас анализа дальнейших направлений развития. С другой стороны укрепление и развитие структуры обеспечивает широкому кругу (специалистов) участие в формировании дальнейших направлений развития.
 Таким образом новая модель организационной деятельности позволяет выполнять важные задания по разработке дальнейших направлений развития. Идейные соображения высшего порядка, а также дальнейшее развитие различных форм деятельности способствует подготовки и реализации системы обучения кадров, соответствует насущным потребностям. Идейные соображения высшего порядка, а также рамки и место обучения кадров позволяет оценить значение форм развития. Значимость этих проблем настолько очевидна, что дальнейшее развитие различных форм деятельности способствует подготовки и реализации новых предложений.
 Разнообразный и богатый опыт постоянное информационно-пропагандистское обеспечение нашей деятельности влечет за собой процесс внедрения и модернизации системы обучения кадров, соответствует насущным потребностям. С другой стороны постоянный количественный рост и сфера нашей активности играет важную роль в формировании системы обучения кадров, соответствует насущным потребностям.`;
 
@@ -10,34 +11,59 @@ const textExampleElement = document.querySelector('#textExample');
 
 const lines = getLines(text);
 
-let letterId = 71;
+let letterId = 1;
 
-update();
+init();
 
-inputElement.addEventListener('keydown', function (event) {
-    // console.log('Fired');
-    // console.log(event);
-    // console.log('[data-key="' + event.key + '"]');
-    const element = document.querySelector('[data-key="' + event.key + '"]');
-    // console.log(element);
-    if (element) {
-        element.classList.add('hint'); 
-    }
+function init () {
+    update();
+
+    inputElement.focus();
+
+    inputElement.addEventListener('keydown', function (event) {
+        // console.log('Fired');
+        // console.log(event);
+        // console.log('[data-key="' + event.key + '"]');
+        const currentLineNumber = getCurrentLineNumber();
+        const element = document.querySelector('[data-key="' + event.key + '"]');
+        const currentLetter = getCurrentLetter();
+        // console.log(element);
+
+        if (event.key.startsWith('F') && event.key.length > 1) {
+            return;
+        }
+
+        if (element) {
+            element.classList.add('hint'); 
+        }
+        const isKey = event.key === currentLetter.oroginal;
+        const isEnter = event.key === 'Enter' && currentLetter.oroginal === '\n';
+
+        if ( isKey || isEnter) {
+            letterId = letterId + 1;
+            update();
+        } else {
+            event.preventDefault();
+        }
+
+        if (currentLineNumber !== getCurrentLineNumber()) {
+            inputElement.value = '';
+            event.preventDefault();
+        }
+
+        // console.log(event.key);
+    });
     
-    const currentLetter = getCurrentLetter();
-    if (event.key === currentLetter.label) {
-        letterId = letterId + 1;
-        update();
-    }
-    // console.log(event.key);
-});
+    inputElement.addEventListener('keyup', function (event) {
+        const element = document.querySelector('[data-key="' + event.key + '"]');
+        if (element) {
+            element.classList.remove('hint');
+        }
+    });
 
-inputElement.addEventListener('keyup', function (event) {
-    const element = document.querySelector('[data-key="' + event.key + '"]');
-    if (element) {
-        element.classList.remove('hint');
-    }
-});
+}
+
+
 
 
 // console.log(lines);
@@ -50,16 +76,29 @@ function getLines (text) {
     // let line = '';
     let line = [];
     let idCounter = 0;
-    for(const letter of text){
+
+    for(const originalLetter of text){
         // console.log(letter);
         idCounter = idCounter + 1; 
+        // °
+
+        let letter = originalLetter;
+        
+        if (letter === ' ') {
+            letter = '°';
+        }
+        if (letter === '\n') {
+            letter = '¶\n';
+        }
+
         line.push({
             id: idCounter,
             label: letter,
+            oroginal: originalLetter,
             success: true
         });
         // line = line + letter;
-        if (line.length >= 70 || letter === '\n') {
+        if (line.length >= 70 || letter === '¶\n') {
             lines.push(line);
             line = []; 
         }
