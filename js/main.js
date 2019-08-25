@@ -10,12 +10,20 @@ const textExampleElement = document.querySelector('#textExample');
 
 const lines = getLines(text);
 
-let letterId = 1;
+let letterId = 71;
+
 update();
 
-inputElement.addEventListener('keydown', function(event){
+inputElement.addEventListener('keydown', function (event) {
     // console.log('Fired');
     // console.log(event);
+    // console.log('[data-key="' + event.key + '"]');
+    const element = document.querySelector('[data-key="' + event.key + '"]');
+    // console.log(element);
+    if (element) {
+        element.classList.add('hint'); 
+    }
+    
     const currentLetter = getCurrentLetter();
     if (event.key === currentLetter.label) {
         letterId = letterId + 1;
@@ -23,6 +31,14 @@ inputElement.addEventListener('keydown', function(event){
     }
     // console.log(event.key);
 });
+
+inputElement.addEventListener('keyup', function (event) {
+    const element = document.querySelector('[data-key="' + event.key + '"]');
+    if (element) {
+        element.classList.remove('hint');
+    }
+});
+
 
 // console.log(lines);
 
