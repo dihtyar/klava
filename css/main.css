@@ -99,6 +99,10 @@ body {
   font-size: 18px;
   transition: all 0.1s ease-in;
 }
+#input{
+
+}
+
 .input.blur {
   border: 3px solid black;
 }

@@ -13,6 +13,12 @@ const lines = getLines(text);
 
 let letterId = 1;
 
+let startMoment = null; 
+let started = false; 
+
+let letterCounter = 0; 
+let letterCounter_error = 0;
+
 init();
 
 function init () {
@@ -23,11 +29,20 @@ function init () {
     inputElement.addEventListener('keydown', function (event) {
         // console.log('Fired');
         // console.log(event);
-        // console.log('[data-key="' + event.key + '"]');
+        console.log('[data-key="' + event.key + '"]');
         const currentLineNumber = getCurrentLineNumber();
         const element = document.querySelector('[data-key="' + event.key + '"]');
         const currentLetter = getCurrentLetter();
         // console.log(element);
+
+        if (event.key !== 'Shift') {
+            letterCounter = letterCounter + 1;
+        }
+
+        if (!started) {
+            started = true;
+            startMoment = Date.now();
+        }
 
         if (event.key.startsWith('F') && event.key.length > 1) {
             return;
@@ -36,19 +51,40 @@ function init () {
         if (element) {
             element.classList.add('hint'); 
         }
-        const isKey = event.key === currentLetter.oroginal;
-        const isEnter = event.key === 'Enter' && currentLetter.oroginal === '\n';
+        const isKey = event.key === currentLetter.original;
+        const isEnter = event.key === 'Enter' && currentLetter.original === '\n';
 
         if ( isKey || isEnter) {
             letterId = letterId + 1;
             update();
         } else {
             event.preventDefault();
+            if (event.key !== 'Shift') {
+                letterCounter_error = letterCounter_error + 1;
+            }
+
+            for (const line of lines) {
+                for (const letter of line) {
+                    if (letter.original === currentLetter.original) {
+                        letter.success = false;
+                    }
+                }
+            }
+            update();
         }
 
         if (currentLineNumber !== getCurrentLineNumber()) {
             inputElement.value = '';
             event.preventDefault();
+
+           
+            const time = Date.now() - startMoment;
+            document.querySelector('#wordsSpeed').textContent = Math.round(60000 * letterCounter / time); 
+            document.querySelector('#errorProcent').textContent  = Math.floor(10000 * letterCounter_error / letterCounter) / 100 + '%'; 
+
+            started = false;
+            letterCounter = 0; 
+            letterCounter_error = 0;
         }
 
         // console.log(event.key);
@@ -94,7 +130,7 @@ function getLines (text) {
         line.push({
             id: idCounter,
             label: letter,
-            oroginal: originalLetter,
+            original: originalLetter,
             success: true
         });
         // line = line + letter;
@@ -131,7 +167,11 @@ function lineToHtml (line){
 
         if (letterId > letter.id) {
             spanElement.classList.add('done');
+        } else if (!letter.success) {
+            spanElement.classList.add('hint');
         }
+
+
 
     }
 
